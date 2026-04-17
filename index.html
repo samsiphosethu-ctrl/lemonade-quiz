@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your Mood</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  margin:0;padding:0;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  background:#1B3A2F;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px 16px;
+}
+ 
+/* ── Card ── */
+.card{
+  background:#fff;
+  border-radius:20px;
+  overflow:hidden;
+  width:100%;
+  max-width:440px;
+  box-shadow:0 32px 80px rgba(0,0,0,0.32);
+}
+ 
+/* ── Progress bar ── */
+.prog{height:5px;background:#e4ede7}
+.prog-fill{
+  height:5px;background:#1B3A2F;
+  width:0%;
+  transition:width 0.55s cubic-bezier(0.4,0,0.2,1);
+}
+ 
+/* ── Screens ── */
+.screen{
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  padding:2.75rem 2rem;
+  min-height:420px;
+  opacity:0;
+  transition:opacity 0.22s ease;
+}
+.screen.active{display:flex}
+.screen.visible{opacity:1}
+ 
+/* ── Intro ── */
+.lemon-wrap{
+  width:72px;height:72px;
+  background:#f7f9e6;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;
+  margin-bottom:1.35rem;
+  border:2.5px solid #e8edcc;
+}
+.screen h2{
+  font-size:1.65rem;font-weight:700;
+  color:#1B3A2F;letter-spacing:-0.03em;
+  line-height:1.2;margin-bottom:0.65rem;
+}
+.screen .sub{
+  font-size:0.93rem;color:#7a9186;
+  line-height:1.65;margin-bottom:1.75rem;
+  max-width:280px;
+}
+.btn-go{
+  background:#1B3A2F;color:#fff;border:none;
+  border-radius:12px;padding:0.88rem 2.25rem;
+  font-size:0.97rem;font-weight:700;cursor:pointer;
+  font-family:inherit;letter-spacing:0.01em;
+  transition:background 0.14s,transform 0.1s;
+}
+.btn-go:hover{background:#254d3e}
+.btn-go:active{transform:scale(0.97)}
+ 
+/* ── Question ── */
+.q-meta{
+  display:flex;align-items:center;gap:0.5rem;
+  margin-bottom:0.55rem;
+}
+.q-dots{display:flex;gap:5px}
+.dot{
+  width:7px;height:7px;border-radius:50%;
+  background:#dce9e0;transition:background 0.25s;
+}
+.dot.on{background:#1B3A2F}
+.q-num{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a8bdb4}
+.q-text{
+  font-size:1.22rem;font-weight:700;color:#1B3A2F;
+  line-height:1.4;margin-bottom:1.4rem;max-width:300px;
+}
+.opts{display:flex;flex-direction:column;gap:0.6rem;width:100%}
+.opt{
+  background:#f3f8f4;border:2px solid transparent;
+  border-radius:12px;padding:0.95rem 1.1rem;
+  font-size:0.92rem;font-weight:600;color:#1B3A2F;
+  cursor:pointer;text-align:left;
+  display:flex;align-items:center;gap:0.8rem;
+  font-family:inherit;width:100%;
+  transition:background 0.12s,border-color 0.12s,color 0.12s,transform 0.08s;
+}
+.opt:hover{background:#e6f0e9;border-color:#b9d3bf}
+.opt:active{transform:scale(0.99)}
+.opt.picked{background:#1B3A2F;color:#fff;border-color:#1B3A2F}
+.opt-icon{font-size:1.1rem;flex-shrink:0;line-height:1}
+ 
+/* ── Result ── */
+.r-badge{
+  font-size:0.66rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:0.1em;padding:0.28rem 0.9rem;
+  border-radius:100px;display:inline-block;margin-bottom:1rem;
+}
+.r-icon{font-size:2.5rem;margin-bottom:0.75rem;line-height:1}
+.r-name{
+  font-size:1.1rem;font-weight:700;color:#1B3A2F;
+  line-height:1.3;margin-bottom:0.5rem;
+}
+.r-desc{
+  font-size:0.87rem;color:#7a9186;line-height:1.7;
+  margin-bottom:1.1rem;max-width:295px;
+}
+.r-cta{
+  font-size:0.86rem;color:#4d6860;line-height:1.6;
+  margin-bottom:1.3rem;
+}
+.r-cta a{color:#1B3A2F;font-weight:700;text-decoration:underline}
+.btn-shop{
+  background:#1B3A2F;color:#fff;border:none;
+  border-radius:12px;padding:0.85rem 0;
+  font-size:0.95rem;font-weight:700;cursor:pointer;
+  font-family:inherit;width:100%;text-align:center;
+  text-decoration:none;display:block;
+  transition:background 0.14s,transform 0.1s;
+  letter-spacing:0.01em;
+}
+.btn-shop:hover{background:#254d3e}
+.btn-shop:active{transform:scale(0.98)}
+.btn-reset{
+  background:transparent;border:2px solid #dce9e0;
+  border-radius:12px;padding:0.6rem;
+  font-size:0.82rem;font-weight:600;color:#a8bdb4;
+  cursor:pointer;font-family:inherit;width:100%;
+  margin-top:0.55rem;
+  transition:background 0.12s,color 0.12s,border-color 0.12s;
+}
+.btn-reset:hover{background:#f3f8f4;color:#1B3A2F;border-color:#b9d3bf}
+ 
+/* ── Responsive ── */
+@media(max-width:360px){
+  .screen{padding:2.2rem 1.4rem}
+  .screen h2{font-size:1.4rem}
+}
+</style>
+</head>
+<body>
+ 
+<div class="card">
+  <div class="prog"><div class="prog-fill" id="pf"></div></div>
+ 
+  <!-- INTRO -->
+  <div class="screen" id="s0">
+    <div class="lemon-wrap">🍋</div>
+    <h2>Find Your Mood</h2>
+    <p class="sub">Three quick questions. One perfect THC lemonade match.</p>
+    <button class="btn-go" onclick="begin()">Let's find it</button>
+  </div>
+ 
+  <!-- QUESTION -->
+  <div class="screen" id="s1">
+    <div class="q-meta">
+      <div class="q-dots" id="qdots"></div>
+      <span class="q-num" id="qnum">Question 1 of 3</span>
+    </div>
+    <div class="q-text" id="qtxt"></div>
+    <div class="opts" id="qopts"></div>
+  </div>
+ 
+  <!-- RESULT -->
+  <div class="screen" id="s2">
+    <div id="rout"></div>
+  </div>
+</div>
+ 
+<script>
+var Qs=[
+  {t:"Where are you starting from?",o:[
+    {e:"✨",l:"Brand new to cannabis beverages",v:0},
+    {e:"🌿",l:"I've tried a few things before",v:1}
+  ]},
+  {t:"What's the occasion?",o:[
+    {e:"🌙",l:"A quiet, relaxing evening in",v:0},
+    {e:"🥂",l:"A social, upbeat setting",v:1}
+  ]},
+  {t:"How do you want to feel?",o:[
+    {e:"🌿",l:"Calm and relaxed",v:0},
+    {e:"✨",l:"Ready to explore the full range",v:1}
+  ]}
+];
+ 
+/* Products keyed by experience (Q1) + mood (Q3) */
+var Ps={
+  "0-0":{
+    badge:"A gentle start",bg:"#e2f0e6",tc:"#1B3A2F",
+    icon:"🍋",
+    name:"Mood Strawberry Lemonade Seltzer (5mg)",
+    desc:"A light, social serving that promotes relaxation and helps you unwind. The ideal starting point for easing into cannabis beverages.",
+    href:"https://mood.com/product/strawberry-lemonade-seltzer",
+    prod:"Mood Strawberry Lemonade Seltzer",
+    verb:"Grab",count:"a 4-pack of the",price:"$19"
+  },
+  "0-1":{
+    badge:"Sample before you commit",bg:"#ede8f7",tc:"#4a2b7d",
+    icon:"✨",
+    name:"Mood Variety Pack",
+    desc:"Four flavors. Sodas and seltzers. The smart choice for someone new who wants to find their favorite before committing to one style.",
+    href:"https://mood.com/product/variety-pack-2-sodas-2-seltzers",
+    prod:"Mood Variety Pack",
+    verb:"Try",count:"a 4-pack of the",price:"$19"
+  },
+  "1-0":{
+    badge:"Ready to enjoy",bg:"#edf4e8",tc:"#2d5a1e",
+    icon:"🍋",
+    name:"Mood Strawberry Lemonade Seltzer (10mg)",
+    desc:"A more noticeable serving that enhances social experiences and supports relaxation. A natural next step for those who've explored a little already.",
+    href:"https://mood.com/product/strawberry-lemonade-seltzer",
+    prod:"Mood Strawberry Lemonade Seltzer",
+    verb:"Grab",count:"a 4-pack of the",price:"$19"
+  },
+  "1-1":{
+    badge:"Explore the range",bg:"#ede8f7",tc:"#4a2b7d",
+    icon:"✨",
+    name:"Mood Variety Pack",
+    desc:"Four flavors. Sodas and seltzers. The smart pick for someone with a bit of experience who wants to discover their signature Mood.",
+    href:"https://mood.com/product/variety-pack-2-sodas-2-seltzers",
+    prod:"Mood Variety Pack",
+    verb:"Try",count:"a 4-pack of the",price:"$19"
+  }
+};
+ 
+var cur=0,ans=[];
+ 
+function show(id){
+  ['s0','s1','s2'].forEach(function(s){
+    var el=document.getElementById(s);
+    el.classList.remove('active','visible');
+  });
+  var t=document.getElementById(id);
+  t.classList.add('active');
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){ t.classList.add('visible'); });
+  });
+}
+ 
+function setProgress(n,of){
+  document.getElementById('pf').style.width=(n/of*100)+'%';
+}
+ 
+function begin(){
+  show('s1');
+  renderQ(0);
+}
+ 
+function renderQ(i){
+  cur=i;
+  var q=Qs[i];
+  document.getElementById('qnum').textContent='Question '+(i+1)+' of '+Qs.length;
+  document.getElementById('qtxt').textContent=q.t;
+  setProgress(i+1,Qs.length+1);
+ 
+  /* dots */
+  var dots=document.getElementById('qdots');
+  dots.innerHTML='';
+  for(var d=0;d<Qs.length;d++){
+    var sp=document.createElement('span');
+    sp.className='dot'+(d<=i?' on':'');
+    dots.appendChild(sp);
+  }
+ 
+  var box=document.getElementById('qopts');
+  box.innerHTML='';
+  q.o.forEach(function(opt,oi){
+    var btn=document.createElement('button');
+    btn.className='opt';
+    btn.innerHTML='<span class="opt-icon">'+opt.e+'</span><span>'+opt.l+'</span>';
+    btn.onclick=function(){
+      box.querySelectorAll('.opt').forEach(function(b){b.classList.remove('picked');});
+      btn.classList.add('picked');
+      ans[i]=opt.v;
+      setTimeout(function(){
+        if(i<Qs.length-1){ renderQ(i+1); }
+        else{ result(); }
+      },290);
+    };
+    box.appendChild(btn);
+  });
+}
+ 
+function result(){
+  setProgress(1,1);
+  var key=ans[0]+'-'+ans[2];
+  var p=Ps[key];
+  var occ=ans[1]===0
+    ? 'Perfect for a laid-back evening in.'
+    : 'Great for social occasions and sharing.';
+ 
+  document.getElementById('rout').innerHTML=
+    '<span class="r-badge" style="background:'+p.bg+';color:'+p.tc+'">'+p.badge+'</span>'+
+    '<div class="r-icon">'+p.icon+'</div>'+
+    '<div class="r-name">'+p.name+'</div>'+
+    '<p class="r-desc">'+p.desc+' '+occ+'</p>'+
+    '<p class="r-cta">'+p.verb+' '+p.count+' <a href="'+p.href+'" target="_blank">'+p.prod+'</a> for '+p.price+'.</p>'+
+    '<a href="'+p.href+'" target="_blank" class="btn-shop">Shop now</a>'+
+    '<button class="btn-reset" onclick="reset()">Start over</button>';
+ 
+  show('s2');
+}
+ 
+function reset(){
+  ans=[];cur=0;
+  setProgress(0,1);
+  show('s0');
+}
+ 
+/* Auto-show intro on load */
+window.onload=function(){ show('s0'); };
+</script>
+ 
+</body>
+</html>
